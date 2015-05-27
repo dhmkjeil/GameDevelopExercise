@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Menu -->
+    <dimen name="title_top_space">20dp</dimen>
+    <dimen name="menu_bottom_space">20dp</dimen>
+    <dimen name="menu_button_width">200dp</dimen>
+    <dimen name="menu_button_height">80dp</dimen>
+    <dimen name="start_exit_button_gap">20dp</dimen>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+    <TextView
+            android:id="@+id/titleTextView"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="@dimen/title_top_space"
+            android:gravity="center_horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/menu_bottom_space"
+            android:gravity="center_horizontal">
+
+        <Button
+                android:id="@+id/startButton"
+                android:layout_width="@dimen/menu_button_width"
+                android:layout_height="@dimen/menu_button_height"
+                android:layout_marginBottom="@dimen/start_exit_button_gap"
+                android:gravity="center"
+                android:text="@string/start_button"
+                android:textStyle="bold"
+                android:textAppearance="?android:textAppearanceLarge"/>
+
+        <Button
+                android:id="@+id/exitButton"
+                android:layout_width="@dimen/menu_button_width"
+                android:layout_height="@dimen/menu_button_height"
+                android:gravity="center"
+                android:layout_below="@id/startButton"
+                android:text="@string/exit_button"
+                android:textStyle="bold"
+                android:textAppearance="?android:textAppearanceLarge"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
+
