@@ -135,40 +135,36 @@ public class BattleThread extends Thread {
     }
 
     public void checkBoatCrash() {
-        double tempCheckEnemyX, tempCheckEnemyY, tempTargetEnemyX, tempTargetEnemyY;
+        double tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY;
 
-        for (int check = 0; check < enemies.size() - 1; check++) {
-            Enemy checkEnemy = enemies.get(check);
-            tempCheckEnemyX = checkEnemy.enemyX;
-            tempCheckEnemyY = checkEnemy.enemyY;
-            for (int target = check + 1; target < enemies.size(); target++) {
+        for (int main = 0; main < enemies.size() - 1; main++) {
+            Enemy mainEnemy = enemies.get(main);
+            tempMainEnemyX = mainEnemy.enemyX;
+            tempMainEnemyY = mainEnemy.enemyY;
+            for (int target = main + 1; target < enemies.size(); target++) {
                 Enemy targetEnemy = enemies.get(target);
                 tempTargetEnemyX = targetEnemy.enemyX;
                 tempTargetEnemyY = targetEnemy.enemyY;
 
-                if (Math.abs(tempCheckEnemyX - tempTargetEnemyX) < (checkEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempCheckEnemyY - tempTargetEnemyY) < (checkEnemy.enemyH + targetEnemy.enemyH)) {
-                    checkEnemy.crashed = true;
-                    targetEnemy.crashed = true;
-                    checkEnemy.crashedTime = 0;
-                    targetEnemy.crashedTime = 0;
+                if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH + targetEnemy.enemyH)) {
+                    if (!mainEnemy.crashed) {
+                        mainEnemy.crash(targetEnemy);
+                    }
                 }
             }
         }
 
         for (Enemy enemy : enemies) {
             if (Math.abs(player.playerX - enemy.enemyX) < (player.playerW + enemy.enemyW) && Math.abs(player.playerY - enemy.enemyY) < (player.playerH + enemy.enemyH)) {
-                enemy.crashed = true;
-                player.crashed = true;
-                enemy.crashedTime = 0;
+                if (!player.crashed) {
+                    player.crash(enemy);
+                }
             }
         }
     }
 
     public void drawItems(Canvas canvas) {
         canvas.drawBitmap(background, 0, 0, null);
-        canvas.drawBitmap(player.playerBoat, (int) (player.playerX - player.playerW), (int) (player.playerY - player.playerH), null);
-        player.moveTrack(canvas);
-
         for (Enemy enemy : enemies) {
             canvas.drawBitmap(enemy.enemy, (int) (enemy.enemyX - enemy.enemyW), (int) (enemy.enemyY - enemy.enemyH), null);
         }
@@ -180,6 +176,9 @@ public class BattleThread extends Thread {
         for (Shell shell : playerShells) {
             canvas.drawBitmap(shell.shell, (int) (shell.shellX - shell.shellW), (int) (shell.shellY - shell.shellH), null);
         }
+
+        canvas.drawBitmap(player.playerBoat, (int) (player.playerX - player.playerW), (int) (player.playerY - player.playerH), null);
+        player.moveTrack(canvas);
     }
 
     public void run() {

@@ -115,12 +115,11 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
                     break;
                 case MotionEvent.ACTION_UP:
                     nowTouchTime = System.currentTimeMillis();
-                    if (!battleThread.player.crashed) {
-                        battleThread.player.wayPointX = nowTouchX;
-                        battleThread.player.wayPointY = nowTouchY;
-                        battleThread.player.getSpeed(beforeTouchTime, nowTouchTime);
-                        battleThread.player.getDiagonal();
-                    }
+                    battleThread.player.crashed = false;
+                    battleThread.player.wayPointX = nowTouchX;
+                    battleThread.player.wayPointY = nowTouchY;
+                    battleThread.player.getSpeed(beforeTouchTime, nowTouchTime);
+                    battleThread.player.getDiagonal();
                     STATE_FLAG = 0;
                     break;
             }

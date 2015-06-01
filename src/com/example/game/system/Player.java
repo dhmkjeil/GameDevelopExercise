@@ -21,7 +21,7 @@ public class Player {
     double playerNowSpeed;
     long lastFireTime;
 
-    public int movingTime, playerHitPoint, beforeDirection;
+    public int movingTime, playerHitPoint;
     public double playerW, playerH, playerX, playerY;
     public double diagonal, diagonalX, diagonalY;
     public double wayPointX, wayPointY;
@@ -62,39 +62,7 @@ public class Player {
     }
 
     public void getDiagonal() {
-        int addDirection = 200;
         double tempX, tempY;
-
-        if (crashed) {
-            switch (checkBeforeDirection()) {
-                case LEFT_TOP:
-                    beforeDirection = LEFT_TOP;
-                    wayPointX = assist.randomNum((int) playerX + addDirection, width);
-                    wayPointY = assist.randomNum((int) playerY + addDirection, height);
-                    break;
-                case RIGHT_TOP:
-                    beforeDirection = RIGHT_TOP;
-                    wayPointX = assist.randomNum(0, (int) playerX - addDirection);
-                    wayPointY = assist.randomNum((int) playerY + addDirection, height);
-                    break;
-                case RIGHT_BOTTOM:
-                    beforeDirection = RIGHT_BOTTOM;
-                    wayPointX = assist.randomNum(0, (int) playerX - addDirection);
-                    wayPointY = assist.randomNum(0, (int) playerY - addDirection);
-                    break;
-                case LEFT_BOTTOM:
-                    beforeDirection = LEFT_BOTTOM;
-                    wayPointX = assist.randomNum((int) playerX + addDirection, width);
-                    wayPointY = assist.randomNum(0, (int) playerY - addDirection);
-                    break;
-                default:
-                    beforeDirection = 0;
-                    wayPointX = assist.randomNum(0, width);
-                    wayPointY = assist.randomNum(0, height);
-                    break;
-            }
-        }
-
         tempX = wayPointX - playerX;
         tempY = wayPointY - playerY;
         diagonal = Math.sqrt((tempX * tempX) + (tempY * tempY));
@@ -110,10 +78,11 @@ public class Player {
         tempXMove = x / diagonalX;
         tempYMove = y / diagonalY;
 
+        movingTime = (int) (tempXMove > tempYMove ? tempYMove : tempXMove);
+
         if (crashed) {
             movingTime = 10;
-        } else {
-            movingTime = (int) (tempXMove > tempYMove ? tempYMove : tempXMove);
+            crashed = false;
         }
     }
 
@@ -138,6 +107,7 @@ public class Player {
                 reverse = true;
                 getDiagonal();
             }
+
             playerX += diagonalX;
             playerY += diagonalY;
 
@@ -145,13 +115,11 @@ public class Player {
                 crashed = false;
                 reverse = false;
                 isDestination = true;
+                wayPointX = playerX;
+                wayPointY = playerY;
             }
 
             movingTime -= 1;
-        }
-
-        if (movingTime == 0 && crashed) {
-            crashed = false;
         }
     }
 
@@ -170,5 +138,146 @@ public class Player {
             return LEFT_BOTTOM;
         }
         return 0;
+    }
+
+    public void crash(Enemy targetEnemy) {
+        crashed = true;
+        targetEnemy.crashed = true;
+        targetEnemy.crashedTime = 0;
+
+        if (isDestination) {
+            switch (targetEnemy.checkBeforeDirection()) {
+                case LEFT_TOP:
+                    targetEnemy.wayPointX = width;
+                    targetEnemy.wayPointY = height;
+                    break;
+                case RIGHT_TOP:
+                    targetEnemy.wayPointX = 0;
+                    targetEnemy.wayPointY = height;
+                    break;
+                case RIGHT_BOTTOM:
+                    targetEnemy.wayPointX = 0;
+                    targetEnemy.wayPointY = 0;
+                    break;
+                case LEFT_BOTTOM:
+                    targetEnemy.wayPointX = width;
+                    targetEnemy.wayPointY = 0;
+                    break;
+                default:
+                    targetEnemy.wayPointX = assist.randomNum(0, width);
+                    targetEnemy.wayPointY = assist.randomNum(0, height);
+                    break;
+            }
+        } else {
+            switch (checkBeforeDirection()) {
+                case LEFT_TOP:
+                    if (playerY >= targetEnemy.enemyY) {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                                targetEnemy.wayPointX = width - targetEnemy.wayPointX;
+                                targetEnemy.wayPointY = height - targetEnemy.wayPointY;
+                                break;
+                            case LEFT_BOTTOM:
+                                wayPointY = height - wayPointY;
+                                targetEnemy.wayPointX = width - targetEnemy.wayPointX;
+                                break;
+                            case RIGHT_BOTTOM:
+                                wayPointX = width - wayPointX;
+                                wayPointY = height - wayPointY;
+                                targetEnemy.wayPointX = width - targetEnemy.wayPointX;
+                                break;
+                            case RIGHT_TOP:
+                                wayPointX = width - wayPointX;
+                                targetEnemy.wayPointX = width - targetEnemy.wayPointX;
+                                targetEnemy.wayPointY = height - targetEnemy.wayPointY;
+                                break;
+                        }
+                    } else {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                            case LEFT_BOTTOM:
+                            case RIGHT_BOTTOM:
+                            case RIGHT_TOP:
+                                break;
+                        }
+                    }
+                    break;
+                case LEFT_BOTTOM:
+                    if (playerY >= targetEnemy.enemyY) {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                                wayPointY = height - wayPointY;
+                                targetEnemy.wayPointX = width - targetEnemy.wayPointX;
+                                targetEnemy.wayPointY = height - targetEnemy.wayPointY;
+                                break;
+                            case LEFT_BOTTOM:
+                                wayPointX = width - wayPointX;
+                                wayPointY = height - wayPointY;
+                                break;
+                            case RIGHT_BOTTOM:
+                                wayPointX = width - wayPointX;
+                                wayPointY = height - wayPointY;
+                                targetEnemy.wayPointX = width - wayPointX;
+                                break;
+                            case RIGHT_TOP:
+                                wayPointX = width - wayPointX;
+                                wayPointY = height - wayPointY;
+                                targetEnemy.wayPointX = width - targetEnemy.wayPointX;
+                                targetEnemy.wayPointY = height - targetEnemy.wayPointY;
+                                break;
+                        }
+                    } else {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                            case LEFT_BOTTOM:
+                            case RIGHT_BOTTOM:
+                            case RIGHT_TOP:
+                                break;
+                        }
+                    }
+                    break;
+                case RIGHT_BOTTOM:
+                    if (playerY >= targetEnemy.enemyY) {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                            case LEFT_BOTTOM:
+                            case RIGHT_BOTTOM:
+                            case RIGHT_TOP:
+                                break;
+                        }
+                    } else {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                            case LEFT_BOTTOM:
+                            case RIGHT_BOTTOM:
+                            case RIGHT_TOP:
+                                break;
+                        }
+                    }
+                    break;
+                case RIGHT_TOP:
+                    if (playerY >= targetEnemy.enemyY) {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                            case LEFT_BOTTOM:
+                            case RIGHT_BOTTOM:
+                            case RIGHT_TOP:
+                                break;
+                        }
+                    } else {
+                        switch (targetEnemy.checkBeforeDirection()) {
+                            case LEFT_TOP:
+                            case LEFT_BOTTOM:
+                            case RIGHT_BOTTOM:
+                            case RIGHT_TOP:
+                                break;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        destinationX = (float) wayPointX;
+        destinationY = (float) wayPointY;
     }
 }

@@ -18,7 +18,7 @@ public class Enemy {
 
     Context context;
 
-    public int hitPoint, beforeDirection;
+    public int hitPoint;
     int width, height;
     public double enemyX, enemyY, enemyW, enemyH;
     final double enemyMaxSpeed;
@@ -49,39 +49,9 @@ public class Enemy {
     }
 
     public void getDiagonal() {
-        int addDirection = 200;
         double tempX, tempY;
 
-        if (crashed) {
-            switch (assist.checkBeforeDirection(diagonal, enemyMaxSpeed, enemyX, enemyY)) {
-                case LEFT_TOP:
-                    beforeDirection = LEFT_TOP;
-                    wayPointX = assist.randomNum((int) enemyX + addDirection, width);
-                    wayPointY = assist.randomNum((int) enemyY + addDirection, height);
-                    break;
-                case RIGHT_TOP:
-                    beforeDirection = RIGHT_TOP;
-                    wayPointX = assist.randomNum(0, (int) enemyX - addDirection);
-                    wayPointY = assist.randomNum((int) enemyY + addDirection, height);
-                    break;
-                case RIGHT_BOTTOM:
-                    beforeDirection = RIGHT_BOTTOM;
-                    wayPointX = assist.randomNum(0, (int) enemyX - addDirection);
-                    wayPointY = assist.randomNum(0, (int) enemyY - addDirection);
-                    break;
-                case LEFT_BOTTOM:
-                    beforeDirection = LEFT_BOTTOM;
-                    wayPointX = assist.randomNum((int) enemyX + addDirection, width);
-                    wayPointY = assist.randomNum(0, (int) enemyY - addDirection);
-                    break;
-                default:
-                    beforeDirection = 0;
-                    wayPointX = assist.randomNum(0, width);
-                    wayPointY = assist.randomNum(0, height);
-                    break;
-            }
-        } else {
-            beforeDirection = 0;
+        if (!crashed) {
             wayPointX = assist.randomNum(0, width);
             wayPointY = assist.randomNum(0, height);
         }
@@ -123,8 +93,8 @@ public class Enemy {
         }
 
         if (crashed && (movingTime - crashedTime > 500)) {
-            enemyNowSpeed = enemyMaxSpeed;
             crashed = false;
+            enemyNowSpeed = enemyMaxSpeed;
             crashedTime = 0;
         }
 
@@ -139,5 +109,38 @@ public class Enemy {
                     200))));
             lastFireTime = fireTime;
         }
+    }
+
+    public int checkBeforeDirection() {
+
+        if (wayPointX < enemyX && wayPointY < enemyY) {
+            return LEFT_TOP;
+        }
+        if (wayPointX > enemyX && wayPointY < enemyY) {
+            return RIGHT_TOP;
+        }
+        if (wayPointX > enemyX && wayPointY > enemyY) {
+            return RIGHT_BOTTOM;
+        }
+        if (wayPointX < enemyX && wayPointY > enemyY) {
+            return LEFT_BOTTOM;
+        }
+        return 0;
+    }
+
+    public void crash(Enemy targetEnemy) {
+
+        double tempWayPointX = wayPointX;
+        double tempWayPointY = wayPointY;
+
+        crashed = true;
+        crashedTime = 0;
+        wayPointX = targetEnemy.wayPointX;
+        wayPointY = targetEnemy.wayPointY;
+
+        targetEnemy.crashed = true;
+        targetEnemy.crashedTime = 0;
+        targetEnemy.wayPointX = tempWayPointX;
+        targetEnemy.wayPointY = tempWayPointY;
     }
 }
