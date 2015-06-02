@@ -23,16 +23,20 @@ public class BattleThread extends Thread {
     public StageClear stageClear;
     public GameOver gameOver;
 
+    public int enemyNumber, totalScore;
+
     private int width, height;
-    public int enemyNumber;
     private long lastFireTime;
-    private Bitmap background;
     private boolean isStopBattle = false;
     private boolean isPauseBattle = false;
+    private Bitmap background;
+    private Bitmap life;
+    private Paint paint;
 
     ArrayList<Shell> playerShells = new ArrayList<Shell>();
     ArrayList<Shell> enemiesShells = new ArrayList<Shell>();
     ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+    ArrayList<Score> scores = new ArrayList<Score>();
     public Player player;
 
     public BattleThread(SurfaceHolder holder, Context context, int enemyNumber) {
@@ -45,6 +49,12 @@ public class BattleThread extends Thread {
 
         background = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.sea);
         background = Bitmap.createScaledBitmap(background, width, height, false);
+        life = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.player_hitpoint);
+
+        totalScore = 0;
+        paint = new Paint();
+        paint.setTextSize(60);
+        paint.setColor(Color.WHITE);
 
         stageClear = new StageClear(context, background);
         gameOver = new GameOver(context, background);
@@ -94,6 +104,11 @@ public class BattleThread extends Thread {
             enemies.get(i).moveEnemy();
             if (enemies.get(i).dead) enemies.remove(i);
         }
+
+        for (int i = scores.size() - 1; i >= 0; i--) {
+            scores.get(i).moveScore();
+            if (scores.get(i).isMoveFinish()) scores.remove(i);
+        }
     }
 
     public void checkEnemyHit() {
@@ -107,8 +122,12 @@ public class BattleThread extends Thread {
                 if (Math.abs(tempEnemyX - tempShellX) < enemy.enemyW && Math.abs(tempEnemyY - tempShellY) < enemy.enemyH) {
                     if (enemy.hitPoint > 1) {
                         enemy.hitPoint -= 1;
+                        scores.add(new Score(enemy.enemyX, enemy.enemyY - enemy.enemyH, 50));
+                        totalScore += 50;
                     } else {
                         enemy.dead = true;
+                        scores.add(new Score(enemy.enemyX, enemy.enemyY - enemy.enemyH, 100));
+                        totalScore += 100;
                     }
                     shell.dead = true;
                     break;
@@ -123,8 +142,8 @@ public class BattleThread extends Thread {
             tempShellX = shell.shellX;
             tempShellY = shell.shellY;
             if (Math.abs(player.playerX - tempShellX) < player.playerW && Math.abs(player.playerY - tempShellY) < player.playerH) {
-                if (player.playerHitPoint > 1) {
-                    player.playerHitPoint -= 1;
+                if (player.hitPoint > 1) {
+                    player.hitPoint -= 1;
                 } else {
                     status = GAME_OVER;
                 }
@@ -177,6 +196,15 @@ public class BattleThread extends Thread {
             canvas.drawBitmap(shell.shell, (int) (shell.shellX - shell.shellW), (int) (shell.shellY - shell.shellH), null);
         }
 
+        for (Score score : scores) {
+            canvas.drawText("+" + score.score, (float) score.positionX, (float) score.positionY, score.paint);
+        }
+
+        for (int i = 0; i < player.hitPoint; i++) {
+            canvas.drawBitmap(life, (i * life.getWidth()) + (i * 10) + 10, 10, null);
+        }
+
+        canvas.drawText("Score : " + totalScore, 10, 100, paint);
         canvas.drawBitmap(player.playerBoat, (int) (player.playerX - player.playerW), (int) (player.playerY - player.playerH), null);
         player.moveTrack(canvas);
     }
@@ -216,7 +244,7 @@ public class BattleThread extends Thread {
                     }
                 }
             } finally {
-                if (enemies.size() == 0 && player.playerHitPoint > 0) {
+                if (enemies.size() == 0 && player.hitPoint > 0) {
                     status = STAGE_CLEAR;
                 }
                 if (canvas != null)

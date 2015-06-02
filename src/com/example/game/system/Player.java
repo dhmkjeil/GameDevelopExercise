@@ -14,14 +14,12 @@ public class Player {
     private final int RIGHT_BOTTOM = 3;
     private final int LEFT_BOTTOM = 4;
 
-    Context context;
-
     final double playerMaxSpeed;
     int width, height;
     double playerNowSpeed;
     long lastFireTime;
 
-    public int movingTime, playerHitPoint;
+    public int movingTime, hitPoint;
     public double playerW, playerH, playerX, playerY;
     public double diagonal, diagonalX, diagonalY;
     public double wayPointX, wayPointY;
@@ -33,7 +31,6 @@ public class Player {
     private Assist assist;
 
     public Player(Context context, int width, int height) {
-        this.context = context;
         this.width = width;
         this.height = height;
 
@@ -42,7 +39,7 @@ public class Player {
         destinationPaint.setColor(Color.WHITE);
         destinationPaint.setStrokeWidth(3);
 
-        playerBoat = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.boat);
+        playerBoat = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat);
 
         playerW = playerBoat.getWidth() / 2;
         playerH = playerBoat.getHeight() / 2;
@@ -51,7 +48,7 @@ public class Player {
 
         playerMaxSpeed = 7;
         playerNowSpeed = playerMaxSpeed;
-        playerHitPoint = 3;
+        hitPoint = 3;
         lastFireTime = 0;
 
         wayPointX = playerX;
@@ -103,7 +100,7 @@ public class Player {
     public void movePlayer() {
         if (movingTime > 0) {
             if (crashed && !reverse) {
-                playerNowSpeed = 1;
+                playerNowSpeed = 2;
                 reverse = true;
                 getDiagonal();
             }
@@ -112,14 +109,15 @@ public class Player {
             playerY += diagonalY;
 
             if (movingTime == 1) {
-                crashed = false;
-                reverse = false;
                 isDestination = true;
-//                wayPointX = playerX;
-//                wayPointY = playerY;
             }
 
             movingTime -= 1;
+        }
+
+        if (movingTime == 0) {
+            crashed = false;
+            reverse = false;
         }
     }
 
@@ -332,7 +330,7 @@ public class Player {
             }
         }
 
-        destinationX = (float) wayPointX;
-        destinationY = (float) wayPointY;
+        destinationX = 0;
+        destinationY = 0;
     }
 }
