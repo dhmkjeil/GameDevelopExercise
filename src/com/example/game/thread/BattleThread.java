@@ -38,6 +38,7 @@ public class BattleThread extends Thread {
     ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     ArrayList<Score> scores = new ArrayList<Score>();
     public Player player;
+    Reload reload;
 
     public BattleThread(SurfaceHolder holder, Context context, int enemyNumber) {
         this.holder = holder;
@@ -59,13 +60,15 @@ public class BattleThread extends Thread {
         stageClear = new StageClear(context, background);
         gameOver = new GameOver(context, background);
         player = new Player(context, width, height);
+        reload = new Reload(this.context);
+        reload.reloadTime = player.reloadTime;
         makeEnemy(this.enemyNumber);
         status = IN_GAME;
     }
 
     public void makePlayerShell(double touchX, double touchY) {
         long fireTime = System.currentTimeMillis();
-        if (fireTime - lastFireTime >= 3000) {
+        if (fireTime - lastFireTime >= (player.reloadTime * 1000)) {
             playerShells.add(new Shell(context, player.playerX, player.playerY, width, height, touchX, touchY));
             lastFireTime = fireTime;
         }
@@ -87,7 +90,6 @@ public class BattleThread extends Thread {
     }
 
     public void moveItems() {
-
         for (int i = playerShells.size() - 1; i >= 0; i--) {
             playerShells.get(i).moveShell();
             if (playerShells.get(i).dead) playerShells.remove(i);
@@ -202,6 +204,11 @@ public class BattleThread extends Thread {
 
         for (int i = 0; i < player.hitPoint; i++) {
             canvas.drawBitmap(life, (i * life.getWidth()) + (i * 10) + 10, 10, null);
+        }
+
+        reload.isReloading(lastFireTime);
+        if (reload.isReloading) {
+            canvas.drawBitmap(reload.reloadBitmap, width - (reload.reloadBitmap.getWidth() + 10), 10, null);
         }
 
         canvas.drawText("Score : " + totalScore, 10, 100, paint);

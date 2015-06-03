@@ -19,7 +19,7 @@ public class Player {
     double playerNowSpeed;
     long lastFireTime;
 
-    public int movingTime, hitPoint;
+    public int movingTime, hitPoint, reloadTime;
     public double playerW, playerH, playerX, playerY;
     public double diagonal, diagonalX, diagonalY;
     public double wayPointX, wayPointY;
@@ -49,6 +49,7 @@ public class Player {
         playerMaxSpeed = 7;
         playerNowSpeed = playerMaxSpeed;
         hitPoint = 3;
+        reloadTime = 3;
         lastFireTime = 0;
 
         wayPointX = playerX;
