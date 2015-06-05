@@ -14,16 +14,17 @@ public class Player {
     private final int RIGHT_BOTTOM = 3;
     private final int LEFT_BOTTOM = 4;
 
-    final double playerMaxSpeed;
-    int width, height;
-    double playerNowSpeed;
-    long lastFireTime;
+    private final double playerMaxSpeed, playerMinSpeed;
+    private double playerNowSpeed;
+    private int width, height;
 
-    public int movingTime, hitPoint, reloadTime;
+    public int movingTime, hitPoint;
     public double playerW, playerH, playerX, playerY;
     public double diagonal, diagonalX, diagonalY;
     public double wayPointX, wayPointY;
-    public float destinationX, destinationY;
+    public float destinationX;
+    public float destinationY;
+    public double reloadTime;
     public boolean crashed = false, reverse = false, isDestination = true;
 
     public Bitmap playerBoat;
@@ -46,11 +47,11 @@ public class Player {
         playerX = this.width / 2;
         playerY = this.height / 2;
 
-        playerMaxSpeed = 7;
+        playerMaxSpeed = 8;
+        playerMinSpeed = 3;
         playerNowSpeed = playerMaxSpeed;
         hitPoint = 3;
-        reloadTime = 3;
-        lastFireTime = 0;
+        reloadTime = 1.5;
 
         wayPointX = playerX;
         wayPointY = playerY;
@@ -89,7 +90,7 @@ public class Player {
         timeSpace = Math.abs(beforeTouchTime - nowTouchTime);
         tempSpeed = 1000 / timeSpace;
         Log.i("speed", "" + tempSpeed);
-        playerNowSpeed = tempSpeed > playerMaxSpeed ? playerMaxSpeed : tempSpeed;
+        playerNowSpeed = tempSpeed > playerMaxSpeed ? playerMaxSpeed : tempSpeed > playerMinSpeed ? tempSpeed : playerMinSpeed;
     }
 
     public void moveTrack(Canvas canvas) {
@@ -112,7 +113,6 @@ public class Player {
             if (movingTime == 1) {
                 isDestination = true;
             }
-
             movingTime -= 1;
         }
 
@@ -161,10 +161,6 @@ public class Player {
                 case LEFT_BOTTOM:
                     targetEnemy.wayPointX = width;
                     targetEnemy.wayPointY = 0;
-                    break;
-                default:
-                    targetEnemy.wayPointX = assist.randomNum(0, width);
-                    targetEnemy.wayPointY = assist.randomNum(0, height);
                     break;
             }
         } else {
@@ -330,8 +326,7 @@ public class Player {
                     break;
             }
         }
-
-        destinationX = 0;
-        destinationY = 0;
+        destinationX = (float) wayPointX;
+        destinationY = (float) wayPointY;
     }
 }

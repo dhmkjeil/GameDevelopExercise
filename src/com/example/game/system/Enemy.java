@@ -44,8 +44,8 @@ public class Enemy {
         enemyMaxSpeed = 3;
         enemyNowSpeed = enemyMaxSpeed;
         hitPoint = 3;
-        lastFireTime = System.currentTimeMillis() + 3000;
-        reloadTime = assist.randomNum(3000, 6000);
+        lastFireTime = System.currentTimeMillis() + 1500;
+        reloadTime = assist.randomNum(3000, 5000);
     }
 
     public void getDiagonal() {

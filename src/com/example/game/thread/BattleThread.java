@@ -25,20 +25,24 @@ public class BattleThread extends Thread {
 
     public int enemyNumber, totalScore;
 
-    private int width, height;
-    private long lastFireTime;
+    private int width, height, leftEnemyNumber;
+    private long lastFireTime, enemyRegenTime;
     private boolean isStopBattle = false;
     private boolean isPauseBattle = false;
     private Bitmap background;
     private Bitmap life;
+    private Bitmap leftEnemy;
     private Paint paint;
 
     ArrayList<Shell> playerShells = new ArrayList<Shell>();
     ArrayList<Shell> enemiesShells = new ArrayList<Shell>();
     ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     ArrayList<Score> scores = new ArrayList<Score>();
+    ArrayList<Long> enemyRegen = new ArrayList<Long>();
+
     public Player player;
-    Reload reload;
+    private Reload reload;
+    private Assist assist;
 
     public BattleThread(SurfaceHolder holder, Context context, int enemyNumber) {
         this.holder = holder;
@@ -51,6 +55,8 @@ public class BattleThread extends Thread {
         background = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.sea);
         background = Bitmap.createScaledBitmap(background, width, height, false);
         life = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.player_hitpoint);
+        leftEnemy = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.enemy);
+        leftEnemy = Bitmap.createScaledBitmap(leftEnemy, 65, 30, false);
 
         totalScore = 0;
         paint = new Paint();
@@ -61,8 +67,13 @@ public class BattleThread extends Thread {
         gameOver = new GameOver(context, background);
         player = new Player(context, width, height);
         reload = new Reload(this.context);
+        assist = new Assist();
+
         reload.reloadTime = player.reloadTime;
-        makeEnemy(this.enemyNumber);
+        leftEnemyNumber = enemyNumber * 5;
+        enemyRegenTime = 5000;
+
+        makeEnemy();
         status = IN_GAME;
     }
 
@@ -74,12 +85,59 @@ public class BattleThread extends Thread {
         }
     }
 
-
-    public void makeEnemy(int enemyNumber) {
-        this.enemyNumber = enemyNumber;
+    public void makeEnemy() {
         Random randomPosition = new Random();
         for (int i = 0; i < enemyNumber; i++) {
-            enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(height), width, height));
+            switch (leftEnemyNumber % 4) {
+                case 0:
+                    enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt((int) (player.playerY - (player.playerH * 3))), width, height));
+                    break;
+                case 1:
+                    enemies.add(new Enemy(context, randomPosition.nextInt(assist.randomNum((int) (player.playerX + (player.playerW * 3)), width)), randomPosition.nextInt(height), width, height));
+                    break;
+                case 2:
+                    enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(assist.randomNum((int) (player.playerY + (player.playerH * 3)), height)), width, height));
+                    break;
+                case 3:
+                    enemies.add(new Enemy(context, randomPosition.nextInt(assist.randomNum(0, (int) (player.playerX - (player.playerW * 3)))), randomPosition.nextInt(height), width, height));
+                    break;
+            }
+            leftEnemyNumber -= 1;
+        }
+    }
+
+    public void checkEnemyRegen() {
+        if (enemyRegen.size() > 0) {
+            for (int i = 0; i < enemyRegen.size(); i++) {
+                if ((enemies.size() == 0 && System.currentTimeMillis() - enemyRegen.get(i) > 1000) || System.currentTimeMillis() - enemyRegen.get(i) > enemyRegenTime) {
+                    Random randomPosition = new Random();
+                    int randomY = 0, randomX = 0;
+                    switch (leftEnemyNumber % 4) {
+                        case 0:
+                            if (player.playerY - (player.playerH * 3) > 0) {
+                                randomY = (int) (player.playerY - (player.playerH * 3));
+                            }
+                            enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(randomY), width, height));
+                            break;
+                        case 1:
+                            randomX = player.playerX + (player.playerW * 3) > width ? width : (int) (player.playerX + (player.playerW * 3));
+                            enemies.add(new Enemy(context, randomPosition.nextInt(assist.randomNum(randomX, width)), randomPosition.nextInt(height), width, height));
+                            break;
+                        case 2:
+                            randomY = player.playerY + (player.playerH * 3) > height ? height : (int) (player.playerY + (player.playerH * 3));
+                            enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(assist.randomNum(randomY, height)), width, height));
+                            break;
+                        case 3:
+                            if (player.playerX - (player.playerW * 3) > 0) {
+                                randomX = (int) (player.playerX - (player.playerW * 3));
+                            }
+                            enemies.add(new Enemy(context, randomPosition.nextInt(randomX), randomPosition.nextInt(height), width, height));
+                            break;
+                    }
+                    enemyRegen.remove(i);
+                    leftEnemyNumber -= 1;
+                }
+            }
         }
     }
 
@@ -130,6 +188,9 @@ public class BattleThread extends Thread {
                         enemy.dead = true;
                         scores.add(new Score(enemy.enemyX, enemy.enemyY - enemy.enemyH, 100));
                         totalScore += 100;
+                        if (leftEnemyNumber > 0) {
+                            enemyRegen.add(System.currentTimeMillis());
+                        }
                     }
                     shell.dead = true;
                     break;
@@ -168,18 +229,14 @@ public class BattleThread extends Thread {
                 tempTargetEnemyY = targetEnemy.enemyY;
 
                 if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH + targetEnemy.enemyH)) {
-                    if (!mainEnemy.crashed) {
-                        mainEnemy.crash(targetEnemy);
-                    }
+                    mainEnemy.crash(targetEnemy);
                 }
             }
         }
 
         for (Enemy enemy : enemies) {
             if (Math.abs(player.playerX - enemy.enemyX) < (player.playerW + enemy.enemyW) && Math.abs(player.playerY - enemy.enemyY) < (player.playerH + enemy.enemyH)) {
-                if (!player.crashed) {
-                    player.crash(enemy);
-                }
+                player.crash(enemy);
             }
         }
     }
@@ -211,6 +268,8 @@ public class BattleThread extends Thread {
             canvas.drawBitmap(reload.reloadBitmap, width - (reload.reloadBitmap.getWidth() + 10), 10, null);
         }
 
+        canvas.drawBitmap(leftEnemy, 10, height - (10 + leftEnemy.getHeight()), null);
+        canvas.drawText("x" + leftEnemyNumber, leftEnemy.getWidth() + 20, height - 10, paint);
         canvas.drawText("Score : " + totalScore, 10, 100, paint);
         canvas.drawBitmap(player.playerBoat, (int) (player.playerX - player.playerW), (int) (player.playerY - player.playerH), null);
         player.moveTrack(canvas);
@@ -235,23 +294,24 @@ public class BattleThread extends Thread {
                 synchronized (holder) {
                     switch (status) {
                         case STAGE_CLEAR:
-                            stageClear.setClear(canvas);
+                            stageClear.setClear(canvas, totalScore);
                             break;
                         case GAME_OVER:
-                            gameOver.setOver(canvas);
+                            gameOver.setOver(canvas, totalScore);
                             break;
                         case IN_GAME:
                             makeEnemyShell();
                             checkBoatCrash();
                             moveItems();
                             checkEnemyHit();
+                            checkEnemyRegen();
                             checkPlayerHit();
                             drawItems(canvas);
                             break;
                     }
                 }
             } finally {
-                if (enemies.size() == 0 && player.hitPoint > 0) {
+                if (leftEnemyNumber == 0 && enemies.size() == 0 && player.hitPoint > 0) {
                     status = STAGE_CLEAR;
                 }
                 if (canvas != null)

@@ -163,8 +163,8 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
     }
 
     public boolean isBoatRange(int x, int y) {
-        if ((battleThread.player.playerX - (battleThread.player.playerW)) < x && x < (battleThread.player.playerX + (battleThread.player.playerW))) {
-            if ((battleThread.player.playerY - (battleThread.player.playerH)) < y && y < (battleThread.player.playerY + (battleThread.player.playerH))) {
+        if ((battleThread.player.playerX - (battleThread.player.playerW + 25)) < x && x < (battleThread.player.playerX + (battleThread.player.playerW + 25))) {
+            if ((battleThread.player.playerY - (battleThread.player.playerH + 25)) < y && y < (battleThread.player.playerY + (battleThread.player.playerH + 25))) {
                 return true;
             }
         }

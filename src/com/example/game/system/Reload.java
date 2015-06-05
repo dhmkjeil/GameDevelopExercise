@@ -10,7 +10,7 @@ import com.example.game.R;
  */
 public class Reload {
     public boolean isReloading;
-    public int reloadTime;
+    public double reloadTime;
     public Bitmap reloadBitmap;
 
     public Reload(Context context) {
