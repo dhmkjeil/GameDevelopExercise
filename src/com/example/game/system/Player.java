@@ -145,23 +145,63 @@ public class Player {
         targetEnemy.crashedTime = 0;
 
         if (isDestination) {
-            switch (targetEnemy.checkBeforeDirection()) {
-                case LEFT_TOP:
-                    targetEnemy.wayPointX = width;
-                    targetEnemy.wayPointY = height;
-                    break;
-                case RIGHT_TOP:
-                    targetEnemy.wayPointX = 0;
-                    targetEnemy.wayPointY = height;
-                    break;
-                case RIGHT_BOTTOM:
+            double targetTop = targetEnemy.enemyY - targetEnemy.enemyH;
+            double targetBottom = targetEnemy.enemyY + targetEnemy.enemyH;
+            double targetRight = targetEnemy.enemyX + targetEnemy.enemyW;
+            double targetLeft = targetEnemy.enemyX - targetEnemy.enemyW;
+            double playerTop = playerY - (playerH + 5);
+            double playerBottom = playerY + (playerH + 5);
+            double playerRight = playerX + (playerW + 5);
+            double playerLeft = playerX - (playerW + 5);
+
+            // 적의 바닥과 아군의 윗면이 만날때
+            if (targetBottom <= playerTop) {
+                if (targetRight < playerX) {
                     targetEnemy.wayPointX = 0;
                     targetEnemy.wayPointY = 0;
-                    break;
-                case LEFT_BOTTOM:
+                }
+
+                if ((targetRight > playerX && targetRight < playerRight) || (targetLeft > playerLeft && targetLeft < playerX)) {
+                    targetEnemy.wayPointX = playerX;
+                    targetEnemy.wayPointY = 0;
+                }
+
+                if (targetLeft > playerX) {
                     targetEnemy.wayPointX = width;
                     targetEnemy.wayPointY = 0;
-                    break;
+                }
+            }
+
+            // 적의 윗면과 아군의 바닥이 만날때
+            if (targetTop >= playerBottom) {
+                if (targetRight < playerX) {
+                    targetEnemy.wayPointX = 0;
+                    targetEnemy.wayPointY = height;
+                }
+
+                if ((targetRight > playerX && targetRight < playerRight) || (targetLeft > playerLeft && targetLeft < playerX)) {
+                    targetEnemy.wayPointX = playerX;
+                    targetEnemy.wayPointY = height;
+                }
+
+                if (targetLeft > playerX) {
+                    targetEnemy.wayPointX = width;
+                    targetEnemy.wayPointY = height;
+                }
+            }
+
+            // 아군의 중간부분에 부딫혔을 때
+            // 전부 이쪽 if문을 탐
+            if ((targetBottom >= playerTop && targetBottom <= playerBottom) || (targetTop >= playerTop && targetTop <= playerBottom)) {
+                if (targetRight <= playerLeft) {
+                    targetEnemy.wayPointX = 0;
+                    targetEnemy.wayPointY = playerY;
+                }
+
+                if (targetLeft >= playerRight) {
+                    targetEnemy.wayPointX = width;
+                    targetEnemy.wayPointY = playerY;
+                }
             }
         } else {
             switch (checkBeforeDirection()) {
