@@ -5,6 +5,8 @@ import android.graphics.*;
 import android.util.Log;
 import com.example.game.R;
 
+import java.util.HashMap;
+
 /**
  * Created by ION on 2015-05-22.
  */
@@ -144,65 +146,81 @@ public class Player {
         targetEnemy.crashed = true;
         targetEnemy.crashedTime = 0;
 
+        int moveEnemy = 500;
+        double enemyLeft = targetEnemy.enemyX - targetEnemy.enemyW;
+        double enemyRight = targetEnemy.enemyX + targetEnemy.enemyW;
+        double enemyTop = targetEnemy.enemyY - targetEnemy.enemyH;
+        double enemyBottom = targetEnemy.enemyY + targetEnemy.enemyH;
+
         if (isDestination) {
-            double targetTop = targetEnemy.enemyY - targetEnemy.enemyH;
-            double targetBottom = targetEnemy.enemyY + targetEnemy.enemyH;
-            double targetRight = targetEnemy.enemyX + targetEnemy.enemyW;
-            double targetLeft = targetEnemy.enemyX - targetEnemy.enemyW;
-            double playerTop = playerY - (playerH + 5);
-            double playerBottom = playerY + (playerH + 5);
-            double playerRight = playerX + (playerW + 5);
-            double playerLeft = playerX - (playerW + 5);
+            switch (targetEnemy.checkBeforeDirection()) {
+                case LEFT_TOP:
+                    if (playerX < enemyLeft && playerY < enemyTop) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX + moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY + moveEnemy;
+                    }
 
-            // 적의 바닥과 아군의 윗면이 만날때
-            if (targetBottom <= playerTop) {
-                if (targetRight < playerX) {
-                    targetEnemy.wayPointX = 0;
-                    targetEnemy.wayPointY = 0;
-                }
+                    if (playerX >= enemyLeft && playerY < enemyTop) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX - moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY + moveEnemy;
+                    }
 
-                if ((targetRight > playerX && targetRight < playerRight) || (targetLeft > playerLeft && targetLeft < playerX)) {
-                    targetEnemy.wayPointX = playerX;
-                    targetEnemy.wayPointY = 0;
-                }
+                    if (playerX < enemyLeft && playerY >= enemyTop) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX + moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY - moveEnemy;
+                    }
+                    break;
+                case RIGHT_TOP:
+                    if (playerX > enemyRight && playerY < enemyTop) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX - moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY + moveEnemy;
+                    }
 
-                if (targetLeft > playerX) {
-                    targetEnemy.wayPointX = width;
-                    targetEnemy.wayPointY = 0;
-                }
+                    if (playerX <= enemyRight && playerY < enemyTop) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX + moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY + moveEnemy;
+                    }
+
+                    if (playerX > enemyRight && playerY >= enemyTop) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX - moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY - moveEnemy;
+                    }
+                    break;
+                case RIGHT_BOTTOM:
+                    if (playerX > enemyRight && playerY > enemyBottom) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX - moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY - moveEnemy;
+                    }
+
+                    if (playerX <= enemyRight && playerY > enemyBottom) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX + moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY - moveEnemy;
+                    }
+
+                    if (playerX > enemyRight && playerY <= enemyBottom) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX - moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY + moveEnemy;
+                    }
+                    break;
+                case LEFT_BOTTOM:
+                    if (playerX < enemyLeft && playerY > enemyBottom) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX + moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY - moveEnemy;
+                    }
+
+                    if (playerX >= enemyLeft && playerY > enemyBottom) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX - moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY - moveEnemy;
+                    }
+
+                    if (playerX < enemyLeft && playerY < enemyBottom) {
+                        targetEnemy.wayPointX = targetEnemy.enemyX + moveEnemy;
+                        targetEnemy.wayPointY = targetEnemy.enemyY + moveEnemy;
+                    }
+                    break;
             }
-
-            // 적의 윗면과 아군의 바닥이 만날때
-            if (targetTop >= playerBottom) {
-                if (targetRight < playerX) {
-                    targetEnemy.wayPointX = 0;
-                    targetEnemy.wayPointY = height;
-                }
-
-                if ((targetRight > playerX && targetRight < playerRight) || (targetLeft > playerLeft && targetLeft < playerX)) {
-                    targetEnemy.wayPointX = playerX;
-                    targetEnemy.wayPointY = height;
-                }
-
-                if (targetLeft > playerX) {
-                    targetEnemy.wayPointX = width;
-                    targetEnemy.wayPointY = height;
-                }
-            }
-
-            // 아군의 중간부분에 부딫혔을 때
-            // 전부 이쪽 if문을 탐
-            if ((targetBottom >= playerTop && targetBottom <= playerBottom) || (targetTop >= playerTop && targetTop <= playerBottom)) {
-                if (targetRight <= playerLeft) {
-                    targetEnemy.wayPointX = 0;
-                    targetEnemy.wayPointY = playerY;
-                }
-
-                if (targetLeft >= playerRight) {
-                    targetEnemy.wayPointX = width;
-                    targetEnemy.wayPointY = playerY;
-                }
-            }
+            targetEnemy.wayPointX = targetEnemy.wayPointX >= width ? width : targetEnemy.wayPointX <= 0 ? 0 : targetEnemy.wayPointX;
+            targetEnemy.wayPointY = targetEnemy.wayPointY >= height ? height : targetEnemy.wayPointY <= 0 ? 0 : targetEnemy.wayPointY;
         } else {
             switch (checkBeforeDirection()) {
                 case LEFT_TOP:
