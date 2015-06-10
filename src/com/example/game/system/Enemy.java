@@ -132,170 +132,109 @@ public class Enemy {
 
         crashed = true;
         crashedTime = 0;
-
         targetEnemy.crashed = true;
         targetEnemy.crashedTime = 0;
 
-        switch (checkBeforeDirection()) {
+        int move = 500;
+        double enemyLeft = targetEnemy.enemyX - targetEnemy.enemyW;
+        double enemyRight = targetEnemy.enemyX + targetEnemy.enemyW;
+        double enemyTop = targetEnemy.enemyY - targetEnemy.enemyH;
+        double enemyBottom = targetEnemy.enemyY + targetEnemy.enemyH;
+
+        switch (targetEnemy.checkBeforeDirection()) {
             case LEFT_TOP:
-                if (enemyY <= targetEnemy.enemyY) {
-                    switch (targetEnemy.checkBeforeDirection()) {
-                        case LEFT_TOP:
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case LEFT_BOTTOM:
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            break;
-                        case RIGHT_BOTTOM:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            break;
-                        case RIGHT_TOP:
-                            wayPointX = width - wayPointX;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                    }
-                } else {
-                    wayPointX = width - wayPointX;
-                    wayPointY = height - wayPointY;
-                    switch (targetEnemy.checkBeforeDirection()) {
-                        case LEFT_TOP:
-                            break;
-                        case LEFT_BOTTOM:
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case RIGHT_BOTTOM:
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case RIGHT_TOP:
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            break;
-                    }
+                if (enemyX < enemyLeft && enemyY < enemyTop) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
                 }
-                break;
-            case LEFT_BOTTOM:
-                if (enemyY <= targetEnemy.enemyY) {
-                    switch (targetEnemy.checkBeforeDirection()) {
-                        case LEFT_TOP:
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case LEFT_BOTTOM:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            break;
-                        case RIGHT_BOTTOM:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - wayPointX;
-                            break;
-                        case RIGHT_TOP:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                    }
-                } else {
-                    switch (targetEnemy.checkBeforeDirection()) {
-                        case LEFT_TOP:
-                            wayPointX = width - wayPointX;
-                            targetEnemy.wayPointY = height - wayPointY;
-                            break;
-                        case LEFT_BOTTOM:
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case RIGHT_BOTTOM:
-                            wayPointX = width - wayPointX;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case RIGHT_TOP:
-                            wayPointX = width - wayPointX;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                    }
+
+                if (enemyX >= enemyLeft && enemyY < enemyTop) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
                 }
-                break;
-            case RIGHT_BOTTOM:
-                if (enemyY <= targetEnemy.enemyY) {
-                    switch (targetEnemy.checkBeforeDirection()) {
-                        case LEFT_TOP:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case LEFT_BOTTOM:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            break;
-                        case RIGHT_BOTTOM:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            break;
-                        case RIGHT_TOP:
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                    }
-                } else {
-                    wayPointX = width - wayPointX;
-                    targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                    targetEnemy.wayPointY = height - targetEnemy.wayPointY;
+
+                if (enemyX < enemyLeft && enemyY >= enemyTop) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
                 }
                 break;
             case RIGHT_TOP:
-                if (enemyY <= targetEnemy.enemyY) {
-                    switch (targetEnemy.checkBeforeDirection()) {
-                        case LEFT_TOP:
-                            wayPointX = width - wayPointX;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case LEFT_BOTTOM:
-                            wayPointX = width - wayPointX;
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            break;
-                        case RIGHT_BOTTOM:
-                            wayPointY = height - wayPointY;
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            break;
-                        case RIGHT_TOP:
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                    }
-                } else {
-                    wayPointX = width - wayPointX;
-                    wayPointY = height - wayPointY;
-                    switch (targetEnemy.checkBeforeDirection()) {
-                        case LEFT_TOP:
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            break;
-                        case LEFT_BOTTOM:
-                            targetEnemy.wayPointX = width - targetEnemy.wayPointX;
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case RIGHT_BOTTOM:
-                            targetEnemy.wayPointY = height - targetEnemy.wayPointY;
-                            break;
-                        case RIGHT_TOP:
-                            break;
-                    }
+                if (enemyX > enemyRight && enemyY < enemyTop) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
+                }
+
+                if (enemyX <= enemyRight && enemyY < enemyTop) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
+                }
+
+                if (enemyX > enemyRight && enemyY >= enemyTop) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
+                break;
+            case RIGHT_BOTTOM:
+                if (enemyX > enemyRight && enemyY > enemyBottom) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
+
+                if (enemyX <= enemyRight && enemyY > enemyBottom) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
+
+                if (enemyX > enemyRight && enemyY <= enemyBottom) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
+                }
+                break;
+            case LEFT_BOTTOM:
+                if (enemyX < enemyLeft && enemyY > enemyBottom) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
+
+                if (enemyX >= enemyLeft && enemyY > enemyBottom) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
+
+                if (enemyX < enemyLeft && enemyY < enemyBottom) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
                 }
                 break;
         }
+
+        wayPointX = wayPointX >= width ? width : wayPointX <= 0 ? 0 : wayPointX;
+        wayPointY = wayPointY >= height ? height : wayPointY <= 0 ? 0 : wayPointY;
+        targetEnemy.wayPointX = targetEnemy.wayPointX >= width ? width : targetEnemy.wayPointX <= 0 ? 0 : targetEnemy.wayPointX;
+        targetEnemy.wayPointY = targetEnemy.wayPointY >= height ? height : targetEnemy.wayPointY <= 0 ? 0 : targetEnemy.wayPointY;
     }
 }
