@@ -6,7 +6,6 @@ import com.example.game.R;
 
 public class StageClear {
     private int messageBackgroundX, messageBackgroundY, messageX, messageY;
-    private int messageBackgroundW, messageBackgroundH, messageW, messageH;
     public int listButtonX, listButtonY;
     public int listButtonW, listButtonH;
     private Bitmap battleBackground, messageBackground, message, listButton;
@@ -17,12 +16,12 @@ public class StageClear {
         message = BitmapFactory.decodeResource(context.getResources(), R.drawable.message_victory);
         listButton = BitmapFactory.decodeResource(context.getResources(), R.drawable.list_button);
         this.battleBackground = battleBackground;
-        messageBackgroundW = messageBackground.getWidth();
-        messageBackgroundH = messageBackground.getHeight();
+        int messageBackgroundW = messageBackground.getWidth();
+        int messageBackgroundH = messageBackground.getHeight();
         messageBackgroundX = (this.battleBackground.getWidth() - messageBackgroundW) / 2;
         messageBackgroundY = (this.battleBackground.getHeight() - messageBackgroundH) / 2;
-        messageW = message.getWidth();
-        messageH = message.getHeight();
+        int messageW = message.getWidth();
+        int messageH = message.getHeight();
         messageX = (this.battleBackground.getWidth() - messageW) / 2;
         messageY = messageBackgroundY + (messageH / 2);
         listButtonW = listButton.getWidth();

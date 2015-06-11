@@ -10,7 +10,6 @@ public class Assist {
         Random random = new Random();
         min = min < 0 ? 0 : min;
         max = max < 0 ? 0 : max;
-        int randomCord = random.nextInt((max - min) + 1) + min;
-        return randomCord;
+        return random.nextInt((max - min) + 1) + min;
     }
 }

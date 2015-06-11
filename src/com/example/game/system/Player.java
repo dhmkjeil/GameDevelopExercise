@@ -25,7 +25,7 @@ public class Player {
     public float destinationX;
     public float destinationY;
     public double reloadTime;
-    public boolean crashed = false, reverse = false, isDestination = true;
+    public boolean crashed = false, reversNow = false, isDestination = true;
 
     public Bitmap playerBoat;
     private Paint destinationPaint;
@@ -63,6 +63,11 @@ public class Player {
         tempX = wayPointX - playerX;
         tempY = wayPointY - playerY;
         diagonal = Math.sqrt((tempX * tempX) + (tempY * tempY));
+
+        if (crashed) {
+            playerNowSpeed = 2;
+        }
+
         if (diagonal > 0) {
             diagonalX = ((tempX / diagonal) * playerNowSpeed);
             diagonalY = ((tempY / diagonal) * playerNowSpeed);
@@ -79,7 +84,6 @@ public class Player {
 
         if (crashed) {
             movingTime = 10;
-            crashed = false;
         }
     }
 
@@ -99,23 +103,15 @@ public class Player {
 
     public void movePlayer() {
         if (movingTime > 0) {
-            if (crashed && !reverse) {
-                playerNowSpeed = 2;
-                reverse = true;
-                getDiagonal();
-            }
             playerX += diagonalX;
             playerY += diagonalY;
 
             if (movingTime == 1) {
                 isDestination = true;
+                crashed = false;
+                reversNow = false;
             }
             movingTime -= 1;
-        }
-
-        if (movingTime == 0) {
-            crashed = false;
-            reverse = false;
         }
     }
 
@@ -152,6 +148,13 @@ public class Player {
                     targetEnemy.wayPointX = targetEnemy.enemyX + move;
                     targetEnemy.wayPointY = targetEnemy.enemyY - move;
                 }
+
+                if (playerX >= enemyLeft && playerY >= enemyTop) {
+                    wayPointX = playerX + move;
+                    wayPointY = playerY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
                 break;
             case RIGHT_TOP:
                 if (playerX > enemyRight && playerY < enemyTop) {
@@ -172,6 +175,13 @@ public class Player {
                     wayPointX = playerX + move;
                     wayPointY = playerY + move;
                     targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
+
+                if (playerX <= enemyRight && playerY >= enemyTop) {
+                    wayPointX = playerX - move;
+                    wayPointY = playerY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
                     targetEnemy.wayPointY = targetEnemy.enemyY - move;
                 }
                 break;
@@ -196,6 +206,13 @@ public class Player {
                     targetEnemy.wayPointX = targetEnemy.enemyX - move;
                     targetEnemy.wayPointY = targetEnemy.enemyY + move;
                 }
+
+                if (playerX <= enemyRight && playerY <= enemyBottom) {
+                    wayPointX = playerX - move;
+                    wayPointY = playerY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
+                }
                 break;
             case LEFT_BOTTOM:
                 if (playerX < enemyLeft && playerY > enemyBottom) {
@@ -216,6 +233,13 @@ public class Player {
                     wayPointX = playerX - move;
                     wayPointY = playerY - move;
                     targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
+                }
+
+                if (playerX >= enemyLeft && playerY < enemyBottom) {
+                    wayPointX = playerX + move;
+                    wayPointY = playerY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
                     targetEnemy.wayPointY = targetEnemy.enemyY + move;
                 }
                 break;

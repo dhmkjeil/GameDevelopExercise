@@ -90,10 +90,10 @@ public class Enemy {
             enemyNowSpeed = 1;
             getDiagonal();
             crashedTime = movingTime;
+            crashed = false;
         }
 
-        if (crashed && (movingTime - crashedTime > 1000)) {
-            crashed = false;
+        if (movingTime - crashedTime > 1000) {
             enemyNowSpeed = enemyMaxSpeed;
             crashedTime = 0;
         }
@@ -163,6 +163,13 @@ public class Enemy {
                     targetEnemy.wayPointX = targetEnemy.enemyX + move;
                     targetEnemy.wayPointY = targetEnemy.enemyY - move;
                 }
+
+                if (enemyX >= enemyLeft && enemyY >= enemyTop) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
                 break;
             case RIGHT_TOP:
                 if (enemyX > enemyRight && enemyY < enemyTop) {
@@ -183,6 +190,13 @@ public class Enemy {
                     wayPointX = enemyX + move;
                     wayPointY = enemyY + move;
                     targetEnemy.wayPointX = targetEnemy.enemyX - move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY - move;
+                }
+
+                if (enemyX <= enemyRight && enemyY >= enemyTop) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY + move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
                     targetEnemy.wayPointY = targetEnemy.enemyY - move;
                 }
                 break;
@@ -207,6 +221,13 @@ public class Enemy {
                     targetEnemy.wayPointX = targetEnemy.enemyX - move;
                     targetEnemy.wayPointY = targetEnemy.enemyY + move;
                 }
+
+                if (enemyX <= enemyRight && enemyY <= enemyBottom) {
+                    wayPointX = enemyX - move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
+                }
                 break;
             case LEFT_BOTTOM:
                 if (enemyX < enemyLeft && enemyY > enemyBottom) {
@@ -227,6 +248,13 @@ public class Enemy {
                     wayPointX = enemyX - move;
                     wayPointY = enemyY - move;
                     targetEnemy.wayPointX = targetEnemy.enemyX + move;
+                    targetEnemy.wayPointY = targetEnemy.enemyY + move;
+                }
+
+                if (enemyX >= enemyLeft && enemyY <= enemyBottom) {
+                    wayPointX = enemyX + move;
+                    wayPointY = enemyY - move;
+                    targetEnemy.wayPointX = targetEnemy.enemyX - move;
                     targetEnemy.wayPointY = targetEnemy.enemyY + move;
                 }
                 break;

@@ -39,6 +39,7 @@ public class BattleThread extends Thread {
     ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     ArrayList<Score> scores = new ArrayList<Score>();
     ArrayList<Long> enemyRegen = new ArrayList<Long>();
+    ArrayList<CrashEffect> crashEffects = new ArrayList<CrashEffect>();
 
     public Player player;
     private Reload reload;
@@ -169,6 +170,11 @@ public class BattleThread extends Thread {
             scores.get(i).moveScore();
             if (scores.get(i).isMoveFinish()) scores.remove(i);
         }
+
+        for (int i = crashEffects.size() -1; i>= 0; i--) {
+            crashEffects.get(i).makeEffect();
+            if (crashEffects.get(i).isFinish) crashEffects.remove(i);
+        }
     }
 
     public void checkEnemyHit() {
@@ -230,6 +236,7 @@ public class BattleThread extends Thread {
 
                 if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH + targetEnemy.enemyH)) {
                     mainEnemy.crash(targetEnemy);
+                    crashEffects.add(new CrashEffect(context, tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY));
                 }
             }
         }
@@ -237,6 +244,8 @@ public class BattleThread extends Thread {
         for (Enemy enemy : enemies) {
             if (Math.abs(player.playerX - enemy.enemyX) < (player.playerW + enemy.enemyW) && Math.abs(player.playerY - enemy.enemyY) < (player.playerH + enemy.enemyH)) {
                 player.crash(enemy);
+                player.getDiagonal();
+                crashEffects.add(new CrashEffect(context, player.playerX, player.playerY, enemy.enemyX, enemy.enemyY));
             }
         }
     }
@@ -273,6 +282,10 @@ public class BattleThread extends Thread {
         canvas.drawText("Score : " + totalScore, 10, 100, paint);
         canvas.drawBitmap(player.playerBoat, (int) (player.playerX - player.playerW), (int) (player.playerY - player.playerH), null);
         player.moveTrack(canvas);
+
+        for (CrashEffect crashEffect : crashEffects) {
+            canvas.drawBitmap(crashEffect.crashEffect, (int) crashEffect.effectX, (int) crashEffect.effectY, null);
+        }
     }
 
     public void run() {
@@ -302,10 +315,10 @@ public class BattleThread extends Thread {
                         case IN_GAME:
                             makeEnemyShell();
                             checkBoatCrash();
-                            moveItems();
                             checkEnemyHit();
-                            checkEnemyRegen();
                             checkPlayerHit();
+                            moveItems();
+                            checkEnemyRegen();
                             drawItems(canvas);
                             break;
                     }
