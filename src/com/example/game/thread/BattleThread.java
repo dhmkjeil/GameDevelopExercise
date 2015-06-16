@@ -43,7 +43,6 @@ public class BattleThread extends Thread {
 
     public Player player;
     private Reload reload;
-    private Assist assist;
 
     public BattleThread(SurfaceHolder holder, Context context, int enemyNumber) {
         this.holder = holder;
@@ -68,7 +67,6 @@ public class BattleThread extends Thread {
         gameOver = new GameOver(context, background);
         player = new Player(context, width, height);
         reload = new Reload(this.context);
-        assist = new Assist();
 
         reload.reloadTime = player.reloadTime;
         leftEnemyNumber = enemyNumber * 5;
@@ -94,13 +92,13 @@ public class BattleThread extends Thread {
                     enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt((int) (player.playerY - (player.playerH * 3))), width, height));
                     break;
                 case 1:
-                    enemies.add(new Enemy(context, randomPosition.nextInt(assist.randomNum((int) (player.playerX + (player.playerW * 3)), width)), randomPosition.nextInt(height), width, height));
+                    enemies.add(new Enemy(context, randomPosition.nextInt(Assist.randomNumIntRangeOverZero((int) (player.playerX + (player.playerW * 3)), width)), randomPosition.nextInt(height), width, height));
                     break;
                 case 2:
-                    enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(assist.randomNum((int) (player.playerY + (player.playerH * 3)), height)), width, height));
+                    enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(Assist.randomNumIntRangeOverZero((int) (player.playerY + (player.playerH * 3)), height)), width, height));
                     break;
                 case 3:
-                    enemies.add(new Enemy(context, randomPosition.nextInt(assist.randomNum(0, (int) (player.playerX - (player.playerW * 3)))), randomPosition.nextInt(height), width, height));
+                    enemies.add(new Enemy(context, randomPosition.nextInt(Assist.randomNumIntRangeOverZero(0, (int) (player.playerX - (player.playerW * 3)))), randomPosition.nextInt(height), width, height));
                     break;
             }
             leftEnemyNumber -= 1;
@@ -122,11 +120,11 @@ public class BattleThread extends Thread {
                             break;
                         case 1:
                             randomX = player.playerX + (player.playerW * 3) > width ? width : (int) (player.playerX + (player.playerW * 3));
-                            enemies.add(new Enemy(context, randomPosition.nextInt(assist.randomNum(randomX, width)), randomPosition.nextInt(height), width, height));
+                            enemies.add(new Enemy(context, randomPosition.nextInt(Assist.randomNumIntRangeOverZero(randomX, width)), randomPosition.nextInt(height), width, height));
                             break;
                         case 2:
                             randomY = player.playerY + (player.playerH * 3) > height ? height : (int) (player.playerY + (player.playerH * 3));
-                            enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(assist.randomNum(randomY, height)), width, height));
+                            enemies.add(new Enemy(context, randomPosition.nextInt(width), randomPosition.nextInt(Assist.randomNumIntRangeOverZero(randomY, height)), width, height));
                             break;
                         case 3:
                             if (player.playerX - (player.playerW * 3) > 0) {
@@ -171,7 +169,7 @@ public class BattleThread extends Thread {
             if (scores.get(i).isMoveFinish()) scores.remove(i);
         }
 
-        for (int i = crashEffects.size() -1; i>= 0; i--) {
+        for (int i = crashEffects.size() - 1; i >= 0; i--) {
             crashEffects.get(i).makeEffect();
             if (crashEffects.get(i).isFinish) crashEffects.remove(i);
         }
@@ -224,6 +222,7 @@ public class BattleThread extends Thread {
 
     public void checkBoatCrash() {
         double tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY;
+        int crashEffectCount = 20;
 
         for (int main = 0; main < enemies.size() - 1; main++) {
             Enemy mainEnemy = enemies.get(main);
@@ -236,7 +235,9 @@ public class BattleThread extends Thread {
 
                 if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH + targetEnemy.enemyH)) {
                     mainEnemy.crash(targetEnemy);
-                    crashEffects.add(new CrashEffect(context, tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY));
+                    for (int i = 0; i < crashEffectCount; i++) {
+                        crashEffects.add(new CrashEffect(context, tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY));
+                    }
                 }
             }
         }
@@ -245,7 +246,9 @@ public class BattleThread extends Thread {
             if (Math.abs(player.playerX - enemy.enemyX) < (player.playerW + enemy.enemyW) && Math.abs(player.playerY - enemy.enemyY) < (player.playerH + enemy.enemyH)) {
                 player.crash(enemy);
                 player.getDiagonal();
-                crashEffects.add(new CrashEffect(context, player.playerX, player.playerY, enemy.enemyX, enemy.enemyY));
+                for (int i = 0; i < crashEffectCount; i++) {
+                    crashEffects.add(new CrashEffect(context, player.playerX, player.playerY, enemy.enemyX, enemy.enemyY));
+                }
             }
         }
     }
@@ -284,7 +287,7 @@ public class BattleThread extends Thread {
         player.moveTrack(canvas);
 
         for (CrashEffect crashEffect : crashEffects) {
-            canvas.drawBitmap(crashEffect.crashEffect, (int) crashEffect.effectX, (int) crashEffect.effectY, null);
+            canvas.drawBitmap(crashEffect.crashEffect, (int) crashEffect.location.x, (int) crashEffect.location.y, null);
         }
     }
 

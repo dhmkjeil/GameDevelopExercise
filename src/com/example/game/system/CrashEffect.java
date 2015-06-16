@@ -4,44 +4,27 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import com.example.game.R;
+import com.example.game.system.particle.ParticleVector;
 
-/**
- * Created by ION on 2015-06-11.
- */
 public class CrashEffect extends Effect {
 
     public Bitmap crashEffect;
 
     public CrashEffect(Context context, double mainBoatX, double mainBoatY, double subBoatX, double subBoatY) {
-        this.mainBoatX = mainBoatX;
-        this.mainBoatY = mainBoatY;
-        this.subBoatX = subBoatX;
-        this.subBoatY = subBoatY;
-        crashEffect = BitmapFactory.decodeResource(context.getResources(), R.drawable.crash_effect);
-        firstEffectW = (crashEffect.getWidth() / 3) * 2;
-        firstEffectH = (crashEffect.getHeight() / 3) * 2;
-        secEffectW = crashEffect.getWidth() / 2;
-        secEffectH = crashEffect.getHeight() / 2;
+        location = new ParticleVector((float) ((mainBoatX + subBoatX) / 2), (float) ((mainBoatY + subBoatY) / 2));
+        acceleration = new ParticleVector(0, (float) 0.05);
+        velocity = new ParticleVector(Assist.randomNumRangeFloat(-1, 1), Assist.randomNumRangeFloat(0, 2));
+        lifespan = Assist.randomNumIntRangeOverZero(110, 170);
+        crashEffect = BitmapFactory.decodeResource(context.getResources(), R.drawable.crash_effect2);
     }
 
     @Override
     public void makeEffect() {
-        Long currentEffectTime = System.currentTimeMillis();
-        if (effectCount > 0 && currentEffectTime - beforeEffectTime > changeEffectTime) {
-            beforeEffectTime = currentEffectTime;
+        velocity.add(acceleration);
+        location.add(velocity);
+        lifespan -= 2.0;
 
-            if (effectCount % 2 == 0) {
-                crashEffect = Bitmap.createScaledBitmap(crashEffect, firstEffectW, firstEffectH, false);
-            } else {
-                crashEffect = Bitmap.createScaledBitmap(crashEffect, secEffectW, secEffectH, false);
-            }
-
-            effectX = ((mainBoatX + subBoatX) / 2) - (crashEffect.getWidth() / 2);
-            effectY = ((mainBoatY + subBoatY) / 2) - (crashEffect.getHeight() / 2);
-            effectCount--;
-        }
-
-        if (effectCount == 0) {
+        if (lifespan < 0.0) {
             isFinish = true;
         }
     }

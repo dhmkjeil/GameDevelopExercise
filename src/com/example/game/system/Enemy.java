@@ -26,10 +26,8 @@ public class Enemy {
     double diagonal, diagonalX, diagonalY, wayPointX, wayPointY;
     public long crashedTime;
     long lastChangedDirection, lastFireTime, reloadTime;
-    public boolean dead = false;
-    public boolean crashed = false;
+    public boolean dead = false, crashed = false;
     public Bitmap enemy;
-    private Assist assist;
 
     public Enemy(Context context, double enemyX, double enemyY, int width, int height) {
         this.context = context;
@@ -37,7 +35,6 @@ public class Enemy {
         this.enemyY = enemyY;
         this.width = width;
         this.height = height;
-        assist = new Assist();
         enemy = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.enemy);
         enemyW = enemy.getWidth() / 2;
         enemyH = enemy.getHeight() / 2;
@@ -45,15 +42,15 @@ public class Enemy {
         enemyNowSpeed = enemyMaxSpeed;
         hitPoint = 3;
         lastFireTime = System.currentTimeMillis() + 1500;
-        reloadTime = assist.randomNum(3000, 5000);
+        reloadTime = Assist.randomNumIntRangeOverZero(3000, 5000);
     }
 
     public void getDiagonal() {
         double tempX, tempY;
 
         if (!crashed) {
-            wayPointX = assist.randomNum(0, width);
-            wayPointY = assist.randomNum(0, height);
+            wayPointX = Assist.randomNumIntRangeOverZero(0, width);
+            wayPointY = Assist.randomNumIntRangeOverZero(0, height);
         }
 
         tempX = wayPointX - enemyX;
@@ -105,7 +102,7 @@ public class Enemy {
     public void makeShell(double enemyX, double enemyY, double playerX, double playerY, ArrayList<Shell> enemiesShell) {
         long fireTime = System.currentTimeMillis();
         if (fireTime - lastFireTime >= reloadTime) {
-            enemiesShell.add(new Shell(context, enemyX, enemyY, width, height, assist.randomNum((int) (playerX - 500), (int) (playerX + 500)), assist.randomNum((int) (playerY - 200), (int) (playerY +
+            enemiesShell.add(new Shell(context, enemyX, enemyY, width, height, Assist.randomNumIntRangeOverZero((int) (playerX - 500), (int) (playerX + 500)), Assist.randomNumIntRangeOverZero((int) (playerY - 200), (int) (playerY +
                     200))));
             lastFireTime = fireTime;
         }
