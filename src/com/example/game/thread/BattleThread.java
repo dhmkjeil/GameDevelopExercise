@@ -1,11 +1,16 @@
 package com.example.game.thread;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.*;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.preference.PreferenceManager;
 import android.view.Display;
 import android.view.SurfaceHolder;
 import android.view.WindowManager;
 import com.example.game.R;
+import com.example.game.SettingPreference;
 import com.example.game.system.*;
 
 import java.util.ArrayList;
@@ -20,6 +25,7 @@ public class BattleThread extends Thread {
 
     SurfaceHolder holder;
     Context context;
+    public SoundPool soundPool;
     public StageClear stageClear;
     public GameOver gameOver;
 
@@ -29,6 +35,7 @@ public class BattleThread extends Thread {
     private long lastFireTime, enemyRegenTime;
     private boolean isStopBattle = false;
     private boolean isPauseBattle = false;
+    private boolean effectSoundOn;
     private Bitmap background;
     private Bitmap life;
     private Bitmap leftEnemy;
@@ -41,6 +48,10 @@ public class BattleThread extends Thread {
     ArrayList<Long> enemyRegen = new ArrayList<Long>();
     ArrayList<CrashEffect> crashEffects = new ArrayList<CrashEffect>();
 
+    SharedPreferences settings;
+
+    public int playerFireEffect, crashEffect;
+
     public Player player;
     private Reload reload;
 
@@ -48,6 +59,13 @@ public class BattleThread extends Thread {
         this.holder = holder;
         this.context = context;
         this.enemyNumber = enemyNumber;
+        settings = PreferenceManager.getDefaultSharedPreferences(context);
+        soundPool = new SoundPool((enemyNumber * 2) + 1, AudioManager.STREAM_MUSIC, 0);
+        playerFireEffect = soundPool.load(context, R.raw.player_fire_effect, 1);
+        crashEffect = soundPool.load(context, R.raw.crash_effect, 1);
+
+        effectSoundOn = settings.getBoolean(SettingPreference.EFFECT_SOUND_ON, true);
+
         Display display = ((WindowManager) this.context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         width = display.getWidth();
         height = display.getHeight();
@@ -80,6 +98,7 @@ public class BattleThread extends Thread {
         long fireTime = System.currentTimeMillis();
         if (fireTime - lastFireTime >= (player.reloadTime * 1000)) {
             playerShells.add(new Shell(context, player.playerX, player.playerY, width, height, touchX, touchY));
+            if (effectSoundOn) soundPool.play(playerFireEffect, 1, 1, 0, 0, 1);
             lastFireTime = fireTime;
         }
     }
@@ -249,6 +268,7 @@ public class BattleThread extends Thread {
                 for (int i = 0; i < crashEffectCount; i++) {
                     crashEffects.add(new CrashEffect(context, player.playerX, player.playerY, enemy.enemyX, enemy.enemyY));
                 }
+                if (effectSoundOn) soundPool.play(crashEffect, 1, 1, 0, 0, 1);
             }
         }
     }

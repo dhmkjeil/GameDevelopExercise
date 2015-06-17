@@ -4,13 +4,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import com.example.game.system.ApplicationData;
 import com.example.game.thread.BattleThread;
 
 public class BattleActivity extends Activity implements SurfaceHolder.Callback {
+
     public final static int BATTLE_ACT = 1000;
 
     public static int STATE_FLAG = 0;
@@ -31,6 +36,9 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
     Intent intent;
     static BattleThread battleThread;
 
+    ApplicationData applicationData;
+    SharedPreferences settings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +49,31 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
         surfaceHolder = battleFieldSurface.getHolder();
         surfaceHolder.addCallback(this);
 
+        applicationData = (ApplicationData) getApplicationContext();
+        settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (settings.getBoolean(SettingPreference.BGM_SOUND_ON, true)) {
+            if (applicationData.battleBGM == null) {
+                applicationData.battleBGM = MediaPlayer.create(BattleActivity.this, R.raw.battle_bgm);
+            }
+        } else {
+            if (applicationData.battleBGM != null && applicationData.battleBGM.isPlaying()) {
+                applicationData.battleBGM.stop();
+            }
+            applicationData.battleBGM = null;
+        }
+
         battleThread = new BattleThread(surfaceHolder, BattleActivity.this, intent.getIntExtra(ENEMY_NUMBER, 1));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (applicationData.battleBGM != null && !applicationData.battleBGM.isPlaying()) {
+            applicationData.battleBGM.start();
+            applicationData.battleBGM.setLooping(true);
+        }
     }
 
     @Override
@@ -53,6 +85,10 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 stopBattle();
+                if (applicationData.battleBGM != null && applicationData.battleBGM.isPlaying()) {
+                    applicationData.battleBGM.stop();
+                }
+                applicationData.battleBGM = null;
                 finish();
             }
         });
@@ -138,6 +174,10 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
                 case MotionEvent.ACTION_DOWN:
                     if (isStageClearButtonRange(nowTouchX, nowTouchY)) {
                         stopBattle();
+                        if (applicationData.battleBGM != null && applicationData.battleBGM.isPlaying()) {
+                            applicationData.battleBGM.stop();
+                        }
+                        applicationData.battleBGM = null;
                         finish();
                     }
                     break;
@@ -150,6 +190,10 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
                     switch (gameOverButton(nowTouchX, nowTouchY)) {
                         case 1:
                             stopBattle();
+                            if (applicationData.battleBGM != null && applicationData.battleBGM.isPlaying()) {
+                                applicationData.battleBGM.stop();
+                            }
+                            applicationData.battleBGM = null;
                             finish();
                             break;
                         case 2:
