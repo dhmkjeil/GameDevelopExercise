@@ -5,9 +5,6 @@ import android.graphics.*;
 import android.util.Log;
 import com.example.game.R;
 
-/**
- * Created by ION on 2015-05-22.
- */
 public class Player {
     private final int LEFT_TOP = 1;
     private final int RIGHT_TOP = 2;
@@ -19,6 +16,7 @@ public class Player {
     private int width, height;
 
     public int movingTime, hitPoint;
+    public int DIRECTION = 0;
     public double playerW, playerH, playerX, playerY;
     public double diagonal, diagonalX, diagonalY;
     public double wayPointX, wayPointY;
@@ -28,6 +26,7 @@ public class Player {
     public boolean crashed = false, reversNow = false, isDestination = true;
 
     public Bitmap playerBoat;
+    private Bitmap playerDirection[] = new Bitmap[8];
     private Paint destinationPaint;
 
     public Player(Context context, int width, int height) {
@@ -38,10 +37,19 @@ public class Player {
         destinationPaint.setColor(Color.WHITE);
         destinationPaint.setStrokeWidth(3);
 
-        playerBoat = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat);
+        playerDirection[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_0);
+        playerDirection[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_1);
+        playerDirection[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_2);
+        playerDirection[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_3);
+        playerDirection[4] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_4);
+        playerDirection[5] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_5);
+        playerDirection[6] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_6);
+        playerDirection[7] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boat_7);
 
-        playerW = playerBoat.getWidth() / 2;
-        playerH = playerBoat.getHeight() / 2;
+        playerW = playerDirection[0].getWidth() / 2;
+        playerH = playerDirection[0].getHeight() / 2;
+
+        playerBoat = playerDirection[0];
         playerX = this.width / 2;
         playerY = this.height / 2;
 
@@ -87,6 +95,53 @@ public class Player {
         }
     }
 
+    public void getDirection() {
+        double directionX, directionY, tempDirection;
+        directionX = wayPointX - playerX;
+        directionY = -(wayPointY - playerY);
+        tempDirection = Math.atan2(directionY, directionX);
+        if (tempDirection < 0) {
+            tempDirection = Math.abs(tempDirection);
+        } else {
+            tempDirection = 2 * Math.PI - tempDirection;
+        }
+
+        double directionAngle = Math.toDegrees(Math.abs(tempDirection));
+        if (directionAngle > 157.5 && directionAngle <= 202.5) {
+            playerW = playerDirection[0].getWidth() / 2;
+            playerH = playerDirection[0].getHeight() / 2;
+            DIRECTION = 0;
+        } else if (directionAngle > 202.5 && directionAngle <= 247.5) {
+            playerW = playerDirection[1].getWidth() / 2;
+            playerH = playerDirection[1].getHeight() / 2;
+            DIRECTION = 1;
+        } else if (directionAngle > 247.5 && directionAngle <= 292.5) {
+            playerW = playerDirection[2].getWidth() / 2;
+            playerH = playerDirection[2].getHeight() / 2;
+            DIRECTION = 2;
+        } else if (directionAngle > 292.5 && directionAngle <= 337.5) {
+            playerW = playerDirection[3].getWidth() / 2;
+            playerH = playerDirection[3].getHeight() / 2;
+            DIRECTION = 3;
+        } else if (directionAngle > 337.5 || directionAngle <= 22.5) {
+            playerW = playerDirection[4].getWidth() / 2;
+            playerH = playerDirection[4].getHeight() / 2;
+            DIRECTION = 4;
+        } else if (directionAngle > 22.5 && directionAngle <= 67.5) {
+            playerW = playerDirection[5].getWidth() / 2;
+            playerH = playerDirection[5].getHeight() / 2;
+            DIRECTION = 5;
+        } else if (directionAngle > 67.5 && directionAngle <= 112.5) {
+            playerW = playerDirection[6].getWidth() / 2;
+            playerH = playerDirection[6].getHeight() / 2;
+            DIRECTION = 6;
+        } else if (directionAngle > 112.5 && directionAngle <= 157.5) {
+            playerW = playerDirection[7].getWidth() / 2;
+            playerH = playerDirection[7].getHeight() / 2;
+            DIRECTION = 7;
+        }
+    }
+
     public void getSpeed(long beforeTouchTime, long nowTouchTime) {
         double tempSpeed, timeSpace;
         timeSpace = Math.abs(beforeTouchTime - nowTouchTime);
@@ -102,6 +157,8 @@ public class Player {
     }
 
     public void movePlayer() {
+        playerBoat = playerDirection[DIRECTION];
+
         if (movingTime > 0) {
             playerX += diagonalX;
             playerY += diagonalY;

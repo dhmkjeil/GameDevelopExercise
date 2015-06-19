@@ -156,6 +156,7 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
                     battleThread.player.wayPointY = nowTouchY;
                     battleThread.player.getSpeed(beforeTouchTime, nowTouchTime);
                     battleThread.player.getDiagonal();
+                    battleThread.player.getDirection();
                     STATE_FLAG = 0;
                     break;
             }

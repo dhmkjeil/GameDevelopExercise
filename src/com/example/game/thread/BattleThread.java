@@ -46,9 +46,9 @@ public class BattleThread extends Thread {
     ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     ArrayList<Score> scores = new ArrayList<Score>();
     ArrayList<Long> enemyRegen = new ArrayList<Long>();
-    ArrayList<CrashEffect> crashEffects = new ArrayList<CrashEffect>();
 
     SharedPreferences settings;
+    Crash crash;
 
     public int playerFireEffect, crashEffect;
 
@@ -63,6 +63,7 @@ public class BattleThread extends Thread {
         soundPool = new SoundPool((enemyNumber * 2) + 1, AudioManager.STREAM_MUSIC, 0);
         playerFireEffect = soundPool.load(context, R.raw.player_fire_effect, 1);
         crashEffect = soundPool.load(context, R.raw.crash_effect, 1);
+        crash = new Crash(context);
 
         effectSoundOn = settings.getBoolean(SettingPreference.EFFECT_SOUND_ON, true);
 
@@ -188,9 +189,9 @@ public class BattleThread extends Thread {
             if (scores.get(i).isMoveFinish()) scores.remove(i);
         }
 
-        for (int i = crashEffects.size() - 1; i >= 0; i--) {
-            crashEffects.get(i).makeEffect();
-            if (crashEffects.get(i).isFinish) crashEffects.remove(i);
+        for (int i = crash.crashEffects.size() - 1; i >= 0; i--) {
+            crash.crashEffects.get(i).makeEffect();
+            if (crash.crashEffects.get(i).isFinish) crash.crashEffects.remove(i);
         }
     }
 
@@ -240,37 +241,39 @@ public class BattleThread extends Thread {
     }
 
     public void checkBoatCrash() {
-        double tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY;
-        int crashEffectCount = 20;
+//        double tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY;
+//        int crashEffectCount = 20;
 
-        for (int main = 0; main < enemies.size() - 1; main++) {
-            Enemy mainEnemy = enemies.get(main);
-            tempMainEnemyX = mainEnemy.enemyX;
-            tempMainEnemyY = mainEnemy.enemyY;
-            for (int target = main + 1; target < enemies.size(); target++) {
-                Enemy targetEnemy = enemies.get(target);
-                tempTargetEnemyX = targetEnemy.enemyX;
-                tempTargetEnemyY = targetEnemy.enemyY;
+//        for (int main = 0; main < enemies.size() - 1; main++) {
+//            Enemy mainEnemy = enemies.get(main);
+//            tempMainEnemyX = mainEnemy.enemyX;
+//            tempMainEnemyY = mainEnemy.enemyY;
+//            for (int target = main + 1; target < enemies.size(); target++) {
+//                Enemy targetEnemy = enemies.get(target);
+//                tempTargetEnemyX = targetEnemy.enemyX;
+//                tempTargetEnemyY = targetEnemy.enemyY;
+//
+//                if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH + targetEnemy.enemyH)) {
+//                    mainEnemy.crash(targetEnemy);
+//                    for (int i = 0; i < crashEffectCount; i++) {
+//                        crashEffects.add(new CrashEffect(context, tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY));
+//                    }
+//                }
+//            }
+//        }
+        crash.enemyDetection(enemies);
+        crash.playerDetection(player, enemies);
 
-                if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH + targetEnemy.enemyH)) {
-                    mainEnemy.crash(targetEnemy);
-                    for (int i = 0; i < crashEffectCount; i++) {
-                        crashEffects.add(new CrashEffect(context, tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY));
-                    }
-                }
-            }
-        }
-
-        for (Enemy enemy : enemies) {
-            if (Math.abs(player.playerX - enemy.enemyX) < (player.playerW + enemy.enemyW) && Math.abs(player.playerY - enemy.enemyY) < (player.playerH + enemy.enemyH)) {
-                player.crash(enemy);
-                player.getDiagonal();
-                for (int i = 0; i < crashEffectCount; i++) {
-                    crashEffects.add(new CrashEffect(context, player.playerX, player.playerY, enemy.enemyX, enemy.enemyY));
-                }
-                if (effectSoundOn) soundPool.play(crashEffect, 1, 1, 0, 0, 1);
-            }
-        }
+//        for (Enemy enemy : enemies) {
+//            if (Math.abs(player.playerX - enemy.enemyX) < (player.playerW + enemy.enemyW) && Math.abs(player.playerY - enemy.enemyY) < (player.playerH + enemy.enemyH)) {
+//                player.crash(enemy);
+//                player.getDiagonal();
+//                for (int i = 0; i < crashEffectCount; i++) {
+//                    crash.crashEffects.add(new CrashEffect(context, player.playerX, player.playerY, enemy.enemyX, enemy.enemyY));
+//                }
+//                if (effectSoundOn) soundPool.play(crashEffect, 1, 1, 0, 0, 1);
+//            }
+//        }
     }
 
     public void drawItems(Canvas canvas) {
@@ -306,7 +309,7 @@ public class BattleThread extends Thread {
         canvas.drawBitmap(player.playerBoat, (int) (player.playerX - player.playerW), (int) (player.playerY - player.playerH), null);
         player.moveTrack(canvas);
 
-        for (CrashEffect crashEffect : crashEffects) {
+        for (CrashEffect crashEffect : crash.crashEffects) {
             canvas.drawBitmap(crashEffect.crashEffect, (int) crashEffect.location.x, (int) crashEffect.location.y, null);
         }
     }

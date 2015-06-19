@@ -3,31 +3,34 @@ package com.example.game.system;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import com.example.game.R;
 
 import java.util.ArrayList;
 
-/**
- * Created by ION on 2015-05-20.
- */
 public class Enemy {
     private final int LEFT_TOP = 1;
     private final int RIGHT_TOP = 2;
     private final int RIGHT_BOTTOM = 3;
     private final int LEFT_BOTTOM = 4;
+    private final double enemyMaxSpeed;
 
     Context context;
+    private int width, height;
+    private double enemyNowSpeed;
+    private double diagonalX;
+    private double diagonalY;
+    double wayPointX, wayPointY;
+    long lastChangedDirection, lastFireTime, reloadTime;
 
     public int hitPoint;
-    int width, height;
     public double enemyX, enemyY, enemyW, enemyH;
-    final double enemyMaxSpeed;
-    double enemyNowSpeed;
-    double diagonal, diagonalX, diagonalY, wayPointX, wayPointY;
     public long crashedTime;
-    long lastChangedDirection, lastFireTime, reloadTime;
     public boolean dead = false, crashed = false;
+    public int DIRECTION;
+
     public Bitmap enemy;
+    private Bitmap enemyDirection[] = new Bitmap[8];
 
     public Enemy(Context context, double enemyX, double enemyY, int width, int height) {
         this.context = context;
@@ -35,9 +38,20 @@ public class Enemy {
         this.enemyY = enemyY;
         this.width = width;
         this.height = height;
-        enemy = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.enemy);
-        enemyW = enemy.getWidth() / 2;
-        enemyH = enemy.getHeight() / 2;
+
+        enemyDirection[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_0);
+        enemyDirection[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_1);
+        enemyDirection[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_2);
+        enemyDirection[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_3);
+        enemyDirection[4] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_4);
+        enemyDirection[5] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_5);
+        enemyDirection[6] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_6);
+        enemyDirection[7] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_7);
+
+        enemyW = enemyDirection[0].getWidth() / 2;
+        enemyH = enemyDirection[0].getHeight() / 2;
+
+        enemy = enemyDirection[0];
         enemyMaxSpeed = 3;
         enemyNowSpeed = enemyMaxSpeed;
         hitPoint = 3;
@@ -55,9 +69,57 @@ public class Enemy {
 
         tempX = wayPointX - enemyX;
         tempY = wayPointY - enemyY;
-        diagonal = Math.sqrt((tempX * tempX) + (tempY * tempY));
+        double diagonal = Math.sqrt((tempX * tempX) + (tempY * tempY));
         diagonalX = ((tempX / diagonal) * enemyNowSpeed);
         diagonalY = ((tempY / diagonal) * enemyNowSpeed);
+    }
+
+    public void getDirection() {
+        double directionX, directionY, tempDirection;
+        directionX = wayPointX - enemyX;
+        directionY = -(wayPointY - enemyY);
+        tempDirection = Math.atan2(directionY, directionX);
+        if (tempDirection < 0) {
+            tempDirection = Math.abs(tempDirection);
+        } else {
+            tempDirection = 2 * Math.PI - tempDirection;
+        }
+
+        double directionAngle = Math.toDegrees(Math.abs(tempDirection));
+
+        if (directionAngle > 157.5 && directionAngle <= 202.5) {
+            enemyW = enemyDirection[0].getWidth() / 2;
+            enemyH = enemyDirection[0].getHeight() / 2;
+            DIRECTION = 0;
+        } else if (directionAngle > 202.5 && directionAngle <= 247.5) {
+            enemyW = enemyDirection[1].getWidth() / 2;
+            enemyH = enemyDirection[1].getHeight() / 2;
+            DIRECTION = 1;
+        } else if (directionAngle > 247.5 && directionAngle <= 292.5) {
+            enemyW = enemyDirection[2].getWidth() / 2;
+            enemyH = enemyDirection[2].getHeight() / 2;
+            DIRECTION = 2;
+        } else if (directionAngle > 292.5 && directionAngle <= 337.5) {
+            enemyW = enemyDirection[3].getWidth() / 2;
+            enemyH = enemyDirection[3].getHeight() / 2;
+            DIRECTION = 3;
+        } else if (directionAngle > 337.5 || directionAngle <= 22.5) {
+            enemyW = enemyDirection[4].getWidth() / 2;
+            enemyH = enemyDirection[4].getHeight() / 2;
+            DIRECTION = 4;
+        } else if (directionAngle > 22.5 && directionAngle <= 67.5) {
+            enemyW = enemyDirection[5].getWidth() / 2;
+            enemyH = enemyDirection[5].getHeight() / 2;
+            DIRECTION = 5;
+        } else if (directionAngle > 67.5 && directionAngle <= 112.5) {
+            enemyW = enemyDirection[6].getWidth() / 2;
+            enemyH = enemyDirection[6].getHeight() / 2;
+            DIRECTION = 6;
+        } else if (directionAngle > 112.5 && directionAngle <= 157.5) {
+            enemyW = enemyDirection[7].getWidth() / 2;
+            enemyH = enemyDirection[7].getHeight() / 2;
+            DIRECTION = 7;
+        }
     }
 
     public void moveEnemy() {
@@ -65,16 +127,19 @@ public class Enemy {
 
         if (enemyX < 0 || enemyY < 0) {
             getDiagonal();
+            getDirection();
             lastChangedDirection = movingTime;
         }
 
         if (enemyX > width - enemy.getWidth() || enemyY > height - enemy.getHeight()) {
             getDiagonal();
+            getDirection();
             lastChangedDirection = movingTime;
         }
 
         if ((Math.abs(wayPointX - enemyX) < 10) && (Math.abs(wayPointY - enemyY) < 10)) {
             getDiagonal();
+            getDirection();
             lastChangedDirection = movingTime;
         }
 
@@ -91,9 +156,12 @@ public class Enemy {
         }
 
         if (movingTime - crashedTime > 1000) {
+            getDirection();
             enemyNowSpeed = enemyMaxSpeed;
             crashedTime = 0;
         }
+
+        enemy = enemyDirection[DIRECTION];
 
         enemyX += diagonalX;
         enemyY += diagonalY;
