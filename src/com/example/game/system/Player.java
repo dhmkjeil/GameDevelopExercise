@@ -5,6 +5,8 @@ import android.graphics.*;
 import android.util.Log;
 import com.example.game.R;
 
+import java.util.ArrayList;
+
 public class Player {
     private final int LEFT_TOP = 1;
     private final int RIGHT_TOP = 2;
@@ -169,6 +171,17 @@ public class Player {
                 reversNow = false;
             }
             movingTime -= 1;
+        }
+    }
+
+    public void movePlayer(ArrayList<Point> shortestPath, int count) {
+        if (shortestPath.size() > 0) {
+            playerX = shortestPath.get(count).x;
+            playerY = shortestPath.get(count).y;
+        }
+
+        if (shortestPath.size() - 1 == count) {
+            shortestPath.clear();
         }
     }
 

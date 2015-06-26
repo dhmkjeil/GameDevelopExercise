@@ -27,7 +27,7 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
     public final static int STAGE_CLEAR = 20;
     public final static int GAME_OVER = 30;
 
-    public final static String ENEMY_NUMBER = "ENEMY_NUMBER";
+    public final static String LEVEL_NUMBER = "LEVEL_NUMBER";
 
     long beforeTouchTime = 0, nowTouchTime = 0;
 
@@ -63,7 +63,7 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
             applicationData.battleBGM = null;
         }
 
-        battleThread = new BattleThread(surfaceHolder, BattleActivity.this, intent.getIntExtra(ENEMY_NUMBER, 1));
+        battleThread = new BattleThread(surfaceHolder, BattleActivity.this, intent.getIntExtra(LEVEL_NUMBER, 1));
     }
 
     @Override
@@ -157,6 +157,8 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
                     battleThread.player.getSpeed(beforeTouchTime, nowTouchTime);
                     battleThread.player.getDiagonal();
                     battleThread.player.getDirection();
+                    battleThread.playerMoveCount = 0;
+                    battleThread.shortestPath = battleThread.aStar.calcShortestPath((int) battleThread.player.playerX, (int) battleThread.player.playerY, nowTouchX, nowTouchY);
                     STATE_FLAG = 0;
                     break;
             }
@@ -254,7 +256,7 @@ public class BattleActivity extends Activity implements SurfaceHolder.Callback {
     public void restartGame() {
         stopBattle();
         battleThread = null;
-        battleThread = new BattleThread(surfaceHolder, BattleActivity.this, intent.getIntExtra(ENEMY_NUMBER, 1));
+        battleThread = new BattleThread(surfaceHolder, BattleActivity.this, intent.getIntExtra(LEVEL_NUMBER, 1));
         battleThread.start();
     }
 }

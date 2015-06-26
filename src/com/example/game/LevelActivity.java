@@ -56,7 +56,7 @@ public class LevelActivity extends Activity {
                 }
                 applicationData.menuBGM = null;
                 Intent intent = new Intent(LevelActivity.this, BattleActivity.class);
-                intent.putExtra(BattleActivity.ENEMY_NUMBER, position + 1);
+                intent.putExtra(BattleActivity.LEVEL_NUMBER, position + 1);
                 startActivityForResult(intent, BattleActivity.BATTLE_ACT);
             }
         });

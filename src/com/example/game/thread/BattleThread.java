@@ -12,6 +12,9 @@ import android.view.WindowManager;
 import com.example.game.R;
 import com.example.game.SettingPreference;
 import com.example.game.system.*;
+import com.example.game.system.pathfinder.AStar;
+import com.example.game.system.pathfinder.BattleMap;
+import com.example.game.system.pathfinder.DiagonalHeuristic;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -29,7 +32,11 @@ public class BattleThread extends Thread {
     public StageClear stageClear;
     public GameOver gameOver;
 
-    public int enemyNumber, totalScore;
+    public BattleMap map;
+    public DiagonalHeuristic dHeuristic;
+    public AStar aStar;
+
+    public int enemyNumber, totalScore, playerMoveCount;
 
     private int width, height, leftEnemyNumber;
     private long lastFireTime, enemyRegenTime;
@@ -41,6 +48,7 @@ public class BattleThread extends Thread {
     private Bitmap leftEnemy;
     private Paint paint;
 
+    public ArrayList<Point> shortestPath;
     ArrayList<Shell> playerShells = new ArrayList<Shell>();
     ArrayList<Shell> enemiesShells = new ArrayList<Shell>();
     ArrayList<Enemy> enemies = new ArrayList<Enemy>();
@@ -55,10 +63,10 @@ public class BattleThread extends Thread {
     public Player player;
     private Reload reload;
 
-    public BattleThread(SurfaceHolder holder, Context context, int enemyNumber) {
+    public BattleThread(SurfaceHolder holder, Context context, int levelNumber) {
         this.holder = holder;
         this.context = context;
-        this.enemyNumber = enemyNumber;
+        this.enemyNumber = levelNumber;
         settings = PreferenceManager.getDefaultSharedPreferences(context);
         soundPool = new SoundPool((enemyNumber * 2) + 1, AudioManager.STREAM_MUSIC, 0);
         playerFireEffect = soundPool.load(context, R.raw.player_fire_effect, 1);
@@ -71,10 +79,14 @@ public class BattleThread extends Thread {
         width = display.getWidth();
         height = display.getHeight();
 
+        map = new BattleMap(width, height);
+        dHeuristic = new DiagonalHeuristic();
+        aStar = new AStar(map, dHeuristic);
+
         background = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.sea);
         background = Bitmap.createScaledBitmap(background, width, height, false);
         life = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.player_hitpoint);
-        leftEnemy = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.enemy);
+        leftEnemy = BitmapFactory.decodeResource(this.context.getResources(), R.drawable.enemy_0);
         leftEnemy = Bitmap.createScaledBitmap(leftEnemy, 65, 30, false);
 
         totalScore = 0;
@@ -88,7 +100,7 @@ public class BattleThread extends Thread {
         reload = new Reload(this.context);
 
         reload.reloadTime = player.reloadTime;
-        leftEnemyNumber = enemyNumber * 5;
+        leftEnemyNumber = levelNumber * 5;
         enemyRegenTime = 5000;
 
         makeEnemy();
@@ -177,7 +189,10 @@ public class BattleThread extends Thread {
             if (enemiesShells.get(i).dead) enemiesShells.remove(i);
         }
 
-        player.movePlayer();
+        if (shortestPath != null) {
+            player.movePlayer(shortestPath, playerMoveCount);
+            playerMoveCount++;
+        }
 
         for (int i = enemies.size() - 1; i >= 0; i--) {
             enemies.get(i).moveEnemy();

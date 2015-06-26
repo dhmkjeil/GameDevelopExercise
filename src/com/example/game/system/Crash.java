@@ -34,7 +34,8 @@ public class Crash {
 
                         switch (targetEnemy.DIRECTION % 2) {
                             case 0:
-                                if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH + targetEnemy.enemyH)) {
+                                if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH +
+                                        targetEnemy.enemyH)) {
                                     mainEnemy.crash(targetEnemy);
                                     for (int i = 0; i < crashEffectCount; i++) {
                                         crashEffects.add(new CrashEffect(context, tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY));
@@ -42,8 +43,8 @@ public class Crash {
                                 }
                                 break;
                             case 1:
-                                if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW / 3) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy
-                                        .enemyH + targetEnemy.enemyH / 3)) {
+                                if (Math.abs(tempMainEnemyX - tempTargetEnemyX) < (mainEnemy.enemyW + targetEnemy.enemyW / 3) && Math.abs(tempMainEnemyY - tempTargetEnemyY) < (mainEnemy.enemyH +
+                                        targetEnemy.enemyH / 3)) {
                                     mainEnemy.crash(targetEnemy);
                                     for (int i = 0; i < crashEffectCount; i++) {
                                         crashEffects.add(new CrashEffect(context, tempMainEnemyX, tempMainEnemyY, tempTargetEnemyX, tempTargetEnemyY));
